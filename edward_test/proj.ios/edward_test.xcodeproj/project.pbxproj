@@ -228,7 +228,6 @@
 		3EC20B8618331D7400F2C4D6 /* jsb_cocos2d_studio.js in Resources */ = {isa = PBXBuildFile; fileRef = 3EC20B7C18331CA200F2C4D6 /* jsb_cocos2d_studio.js */; };
 		81B9BC8918479DEB005DF49E /* edwardtest.js in Sources */ = {isa = PBXBuildFile; fileRef = 81B9BC8818479DEB005DF49E /* edwardtest.js */; };
 		81B9BC8C1847A8DE005DF49E /* src in Resources */ = {isa = PBXBuildFile; fileRef = 1AE4B40216D1FECD003C6D1C /* src */; };
-		81B9BC8D1847A8DE005DF49E /* edwardtest.js in Resources */ = {isa = PBXBuildFile; fileRef = 81B9BC8818479DEB005DF49E /* edwardtest.js */; };
 		81C7AE99184868300068E434 /* res in Resources */ = {isa = PBXBuildFile; fileRef = 81C7AE98184868300068E434 /* res */; };
 		A92275421517C094001B78AA /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A92275411517C094001B78AA /* QuartzCore.framework */; };
 		A92275441517C094001B78AA /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A92275431517C094001B78AA /* OpenGLES.framework */; };
@@ -1690,7 +1689,6 @@
 			files = (
 				81C7AE99184868300068E434 /* res in Resources */,
 				81B9BC8C1847A8DE005DF49E /* src in Resources */,
-				81B9BC8D1847A8DE005DF49E /* edwardtest.js in Resources */,
 				3EC20B8618331D7400F2C4D6 /* jsb_cocos2d_studio.js in Resources */,
 				1A5E740017F0870800B9ACAE /* jsb_deprecated.js in Resources */,
 				1AA51AEB16F71C3D000FDF05 /* jsb_chipmunk_constants.js in Resources */,
