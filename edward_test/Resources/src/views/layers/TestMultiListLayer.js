@@ -15,8 +15,16 @@ var TestMultiListLayer = cc.Layer.extend({
 
         var list = new MultiList();
         list.init(TestListItem,TestListSkin,5,5,0,0,cc.SCROLLVIEW_DIRECTION_HORIZONTAL);
-        list.setPosition(cc.p(100,50));
+        list.setPosition(50,50);
         this.addChild(list);
+
+        //var item = new TestListItem(new TestListSkin);
+        //item.setPosition(100,100);
+        //this.addChild(item);
+
+        //var skin = new TestListSkin;
+        //skin.setPosition(200,100);
+        //this.addChild(skin);
 
         this._data = [];
         for(var i = 0;i<50;++i)
@@ -33,13 +41,20 @@ var TestListItem = ListItem.extend({
         this._super();
         if(null != this._data)
         {
-            var skin = getChildByTag(1);
+            cc.log("TestListItem updateData step 1");
+            var skin = this.getChildByTag(1);
+            cc.log("TestListItem updateData step 2");
             if(skin)
             {
+                cc.log("TestListItem updateData step 3");
                 skin.removeChildByTag(1,true);
+                cc.log("TestListItem updateData step 4");
                 var i = this._data%8;
-                var sp = cc.Sprite.create("res/Images/blocks.png",cc.RectMake((i/2)*32,(i%2)*32,32,32));
+                cc.log("TestListItem updateData step 5 i:"+i);
+                var sp = cc.Sprite.create("res/Images/blocks.png",cc.rect((i/2)*32,(i%2)*32,32,32));
+                cc.log("TestListItem updateData step 6 size:"+sp.getContentSize().width+" "+sp.getContentSize().height);
                 skin.addChild(sp,0,1);
+                cc.log("TestListItem updateData step 7");
             }
         }
     }
@@ -47,9 +62,13 @@ var TestListItem = ListItem.extend({
 
 var TestListSkin = cc.Node.extend({
     ctor:function(){
+        cc.log("TestListSkin ctor begin");
         this._super();
 
         var sprite = cc.Sprite.create("res/Images/hole_effect.png");
+        sprite.setAnchorPoint(cc.p(0,0));
         this.addChild(sprite);
+        this.setContentSize(sprite.getContentSize());
+        cc.log("TestListSkin ctor:"+sprite.getContentSize().width+" "+sprite.getContentSize().height);
     }
 });

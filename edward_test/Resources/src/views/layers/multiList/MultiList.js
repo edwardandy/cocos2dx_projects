@@ -1,6 +1,12 @@
 /**
  * Created by Administrator on 13-12-16.
  */
+var CustomTableViewCell = cc.TableViewCell.extend({
+    draw:function (ctx) {
+        this._super(ctx);
+    }
+});
+
 var MultiList = cc.Node.extend({
     itemClazz:null,
     skinClazz:null,
@@ -27,11 +33,11 @@ var MultiList = cc.Node.extend({
         this.colSpace = colSpace;
         this._direction = (null == direction)?cc.SCROLLVIEW_DIRECTION_HORIZONTAL:direction;
         if(skinClazz)
-            itemInstance = new itemClazz(new skinClazz);
+            this.itemInstance = new itemClazz(new skinClazz);
 
         this.setAnchorPoint(cc.p(0,0));
 
-        var gridSize = itemInstance.getContentSize();
+        var gridSize = this.itemInstance.getContentSize();
         cc.log("gridSize:"+gridSize.width +" height:"+gridSize.height);
         this._tableView = cc.TableView.create(this, cc.size(this.col*gridSize.width+(this.col-1)*this.colSpace
             , this.row*gridSize.height+(this.row-1)*this.rowSpace));
@@ -79,6 +85,7 @@ var MultiList = cc.Node.extend({
         var label;
         if (!cell) {
             cell = new this.itemClazz(new this.skinClazz);
+            //cell = new CustomTableViewCell;
         }
         cell.setData(this._data[idx]);
         cc.log("tableCellAtIndex"+cell.toString());
@@ -151,6 +158,7 @@ var MultiList = cc.Node.extend({
             if(cell && cell.getData() && filedValue == cell.getData()[searchField])
                 return cell;
         }
+        return null;
     },
     updateItem:function(searchField,filedValue,value){
         var item = this.searchItem(searchField,filedValue);
@@ -167,6 +175,7 @@ var MultiList = cc.Node.extend({
             if(o && filedValue == o[searchField])
                return o;
         }
+        return null;
     },
     updateItems:function(object){
         var len = this._data.length;
@@ -186,4 +195,4 @@ var MultiList = cc.Node.extend({
                 o[searchField] = value;
         }
     }
-})
+});
