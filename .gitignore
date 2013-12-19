@@ -1,2 +1,13 @@
 edward_test/proj.ios/.idea/dictionaries/ios.xml
 edward_test/proj.ios/edward_test.xcodeproj/project.xcworkspace/xcshareddata/edward_test.xccheckout
+*.xcuserstate
+*.xccheckout
+project.xcworkspace/
+xcuserdata/
+#edward_test/.idea
+#edward_test/proj.win32/Debug.win32
+Debug.win32
+Release.win32
+.idea
+*.sdf
+*.opensdf
