@@ -9,12 +9,21 @@ var TestMultiListLayer = cc.Layer.extend({
         var director = cc.Director.getInstance();
         var winSize = director.getWinSize();
 
+        director.setDepthTest(true);
+
+        //var clipping = cc.ClippingNode.create();
+        //var mask = cc.Sprite.create();
+        //mask.setContentSize(cc.size(100,100));
+        //clipping.setStencil(mask);
+
+        //var content = cc.LayerColor.create(cc.c4b(255,0,0,255),200,200);
+        //clipping.addChild(content);
+
         var bmLabel = cc.LabelBMFont.create("MultiList","res/fonts/arial16.fnt");
         bmLabel.setPosition(winSize.width/2,winSize.height - bmLabel.getContentSize().height/2-100);
         this.addChild(bmLabel);
 
-        var list = new MultiList();
-        list.init(TestListItem,TestListSkin,5,5,0,0,cc.SCROLLVIEW_DIRECTION_HORIZONTAL);
+        var list = new MultiList(TestListItem,TestListSkin,5,5,0,0);
         list.setPosition(50,50);
         this.addChild(list);
 
@@ -37,17 +46,19 @@ var TestMultiListLayer = cc.Layer.extend({
 });
 
 var TestListItem = ListItem.extend({
-    updateData:function(){
-        this._super();
-        if(null != this._data)
+    setData:function(data){
+        //this._super();
+        this._data = data;
+        if(null !== this._data)
         {
-            cc.log("TestListItem updateData step 1");
+            cc.log("TestListItem updateData step 1 data:"+this._data);
             var skin = this.getChildByTag(1);
             cc.log("TestListItem updateData step 2");
             if(skin)
             {
                 cc.log("TestListItem updateData step 3");
-                skin.removeChildByTag(1,true);
+                if(null != skin.getChildByTag(1))
+                    skin.removeChildByTag(1,true);
                 cc.log("TestListItem updateData step 4");
                 var i = this._data%8;
                 cc.log("TestListItem updateData step 5 i:"+i);
@@ -56,7 +67,10 @@ var TestListItem = ListItem.extend({
                 skin.addChild(sp,0,1);
                 cc.log("TestListItem updateData step 7");
             }
+            //this.setVisible(true);
         }
+        //else
+        //    this.setVisible(false);
     }
 });
 

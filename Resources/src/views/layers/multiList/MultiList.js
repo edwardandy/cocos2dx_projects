@@ -1,198 +1,420 @@
 /**
  * Created by Administrator on 13-12-16.
  */
-var CustomTableViewCell = cc.TableViewCell.extend({
-    draw:function (ctx) {
-        this._super(ctx);
-    }
-});
+var Direction = {
+    HORIZONTAL:"horizontal",
+    VERTICAL:"vertical"
+};
 
-var MultiList = cc.Node.extend({
+var MultiList = cc.Layer.extend({
     itemClazz:null,
     skinClazz:null,
     row:0,
     col:0,
     rowSpace:0,
     colSpace:0,
-    _direction:cc.SCROLLVIEW_DIRECTION_HORIZONTAL,
-    itemInstance:null,
+    _direction:Direction.HORIZONTAL,
 
-    _data:[],
-    _tableView:null,
-    _maxIndex:0,
+    mContainer:null,
+    mList:null,
+
+    _data:null,
+    _currentPoint:0,
     _index:0,
-    init:function(itemClazz,skinClazz,row,col,rowSpace,colSpace,direction){
-        if(!this._super())
-            return;
-        cc.log("startInitMultiList");
-        this.itemClazz = itemClazz;
-        this.skinClazz = skinClazz;
-        this.row = row;
-        this.col = col;
-        this.rowSpace = rowSpace;
-        this.colSpace = colSpace;
-        this._direction = (null == direction)?cc.SCROLLVIEW_DIRECTION_HORIZONTAL:direction;
-        if(skinClazz)
-            this.itemInstance = new itemClazz(new skinClazz);
+    _mask:null,
+    itemInstance:null,
+    ctor:function(clazz,skinClazz, row, col, rowSpace,colSpace,direction){
+        this._super();
 
-        this.setAnchorPoint(cc.p(0,0));
+        this.itemClazz 		= clazz;
+        this.skinClazz 		= skinClazz;
+        this.row 			= row;
+        this.col 			= col;
+        this.rowSpace 		= rowSpace;
+        this.colSpace 		= colSpace;
+        this.direction		= direction? direction : Direction.HORIZONTAL;
+        this.itemInstance	= new clazz();
+        this.itemInstance.retain();
 
-        var gridSize = this.itemInstance.getContentSize();
-        cc.log("gridSize:"+gridSize.width +" height:"+gridSize.height);
-        this._tableView = cc.TableView.create(this, cc.size(this.col*gridSize.width+(this.col-1)*this.colSpace
-            , this.row*gridSize.height+(this.row-1)*this.rowSpace));
-        this._tableView.retain();
-        this._tableView.setDirection(this._direction);
-        this._tableView.setPosition(cc.p(0,0));
-        this._tableView.setDelegate(this);
-        this.addChild(this._tableView,0,1);
-        this._tableView.reloadData();
-        cc.log("endInitMultiList");
-    },
-    scrollViewDidScroll:function (view) {
-    },
-    scrollViewDidZoom:function (view) {
-    },
-    tableCellTouched:function (table, cell) {
-        cc.log("cell touched at index: " + cell.getIdx());
-    },
-    tableCellSizeForIndex:function (table, idx) {
-        var len = this._data.length;
-        var gridSize = this.itemInstance.getContentSize();
-        var width = gridSize.width + this.colSpace;
-        var height = gridSize.height + this.rowSpace;
-
-        if(cc.SCROLLVIEW_DIRECTION_HORIZONTAL = this._direction)
+        if(skinClazz != null)
         {
-            if(idx >= ((len/this.col)-1)*this.col)
-            {
-                height = gridSize.height;
-            }
+            this.itemInstance.setSkin(new skinClazz());
+        }
+
+        //容器
+        this.mContainer			= cc.Layer.create();
+        this.mContainer.retain();
+        this.addChild(this.mContainer);
+
+
+        //遮罩层
+        this._mask				= cc.DrawNode.create();
+        this._mask.retain();
+
+        //this.mContainer.stencil 	= this._mask;
+
+        this.make();
+        //this.drawMask();
+    },
+    /**
+     * 绘制遮罩
+     */
+    drawMask:function(drawX, drawY, drawWidth, drawHeight){
+        var triangle = [cc.p(-100, -100),cc.p(100, -100), cc.p(0, 100)];
+
+        var green = cc.c4f(0, 1, 0, 1);
+        this._mask.drawPoly(triangle, green, 3, green);
+
+    },
+    /**
+     * 刷新显示对象中的元素
+     */
+    make:function(){
+        this.mList = [];
+
+        var len_1;
+        var len_2;
+        if(this._direction == Direction.HORIZONTAL){
+            len_1 = this.row;
+            len_2 = this.col;
         }
         else
         {
-            if(idx >= ((len/this.row)-1)*this.row)
+            len_1 = this.col;
+            len_2 = this.row;
+        }
+
+        var item;
+        for (var i = 0; i < len_1 + 1; i++)
+        {
+            if(this.mList[i] == null)
+                this.mList[i] = [];
+            for (var j = 0; j < len_2; j++)
             {
-                width = gridSize.width;
+                item		= this.getNewItem();
+                item.setItemId(-1);
+                item.retain();
+                this.mList[i].push(item);
             }
         }
-        cc.log("tableCellSizeForIndex: width "+width+" height "+height);
-        return cc.size(width, height);
     },
-    tableCellAtIndex:function (table, idx) {
-        var strValue = idx.toFixed(0);
-        var cell = table.dequeueCell();
-        var label;
-        if (!cell) {
-            cell = new this.itemClazz(new this.skinClazz);
-            //cell = new CustomTableViewCell;
-        }
-        cell.setData(this._data[idx]);
-        cc.log("tableCellAtIndex"+cell.toString());
-        return cell;
-    },
-    numberOfCellsInTableView:function (table) {
-        //cc.log("numberOfCellsInTableView "+this._data.length);
-        return this._data.length;
-    },
-    setData:function(data){
-        if(data)
+    /**
+     * 获取新的子项
+     */
+    getNewItem:function(){
+        var item = new this.itemClazz();
+        this.mContainer.addChild(item);
+        if(this.skinClazz != null)
         {
-            this._data = data;
-            this.updateData();
-            var scrollView = this.getChildByTag(1);
-            if(scrollView)
-                scrollView.reloadData();
+            item.setSkin(new this.skinClazz());
         }
+        return item;
     },
+    /**
+     * 设置滚动方向
+     */
+    setDirection:function(dir){
+        this._direction = dir;
+    },
+    /**
+     * 获取列表数据
+     */
     getData:function(){
         return this._data;
     },
-    updateData:function(){
-        if(cc.SCROLLVIEW_DIRECTION_HORIZONTAL = this._direction)
-            this._maxIndex  = (this._data.length/this.col)-this.row;
-        else
-            this._maxIndex  = (this._data.length/this.row)-this.col;
-
-        if(this._index>this._maxIndex)
-            this.setIndex(this._maxIndex,false,0);
+    /**
+     * 设置列表数据
+     */
+    setData:function(value){
+        this._data 			= value;
+        this._currentPoint   = 0;
+        this._index		= 0;
+        this.fill(true);
+        cc.log("MultiList setData:"+value);
     },
+    /**
+     * 执行滚动时的数据更新
+     */
+    fill:function(isAll){
+        var i
+        var j;
+        var len			= this.mList.length;
+        var item;
+        var isNeed;
+        var needList	= [];
+        var outList	= [];
+        var rowNum = -1;
+        cc.log("MultiList fill len:"+len+" isAll:"+isAll);
+        if(isAll){
+            for (i = 0; i < len; i++)
+            {
+                cc.log("MultiList fill i:"+i);
+                rowNum = Math.floor((this._currentPoint + (i * this.getItemSize())) / this.getItemSize());
+                for (j = 0; j < this.mList[i].length; j++)
+                {
+                    cc.log("MultiList fill j:"+j+" _direction:"+this._direction);
+                    item							= this.mList[i][j];
+                    if(this._direction == Direction.HORIZONTAL){
+
+                        cc.log("MultiList fill rowNum:"+rowNum+" this.col:"+this.col);
+                        item.setItemId(rowNum * this.col + j);
+                        item.setData(this._data[item.getItemId()-this.col]);
+                        cc.log("MultiList fill itemid:"+(item.getItemId())+" itemDataIdx:"+(item.getItemId()-this.col));
+                        item.setPosition(cc.p(j * (this.itemInstance.getContentSize().width + this.colSpace)
+                        ,(rowNum * this.getItemSize())-this._currentPoint - this.getItemSize()));
+                    }
+                    else
+                    {
+                        item.setItemId(rowNum * this.row + j);
+                        item.setData(this._data[item.getItemId()-this.row]);
+                        item.setPosition(cc.p((rowNum * this.getItemSize())-this._currentPoint - this.getItemSize()
+                            ,j * (this.itemInstance.getContentSize().height + this.rowSpace)));
+                    }
+                }
+            }
+        }
+        else
+        {
+            for (i = 0; i < len; i++)
+            {
+                needList.push(Math.ceil((this._currentPoint + (i* this.getItemSize())) / this.getItemSize()));
+            }
+            //找到显示区域外的子项
+            for (i = 0; i < len; i++)
+            {
+                if(this._direction == Direction.HORIZONTAL){
+                    rowNum		= Math.floor(this.mList[i][0].getItemId() / this.col);
+                }
+                else
+                {
+                    rowNum		= Math.floor(this.mList[i][0].getItemId() / this.row);
+                }
+                isNeed		= false;
+                for (j = 0; j < needList.length; j++)
+                {
+                    if (rowNum == needList[j])
+                    {
+                        isNeed	= true;
+                        needList.splice(j, 1);
+                        break;
+                    }
+                }
+                if (!isNeed)
+                {
+                    outList.push(this.mList[i]);
+                }else
+                {
+                    var llen = this.mList[i].length;
+                    for (var k = 0; k < llen; k++)
+                    {
+                        item 	= this.mList[i][k];
+
+                        if(this._direction == Direction.HORIZONTAL){
+
+                            item.setPositionY((Math.floor(item.getItemId() / this.col) * this.getItemSize())
+                                - this._currentPoint - this.getItemSize());
+                        }
+                        else
+                        {
+                            item.setPositionX((Math.floor(item.getItemId() / this.row) * this.getItemSize())
+                                - this._currentPoint - this.getItemSize());
+                        }
+                    }
+                }
+            }
+            //列表外的子项修正到显示区域内
+            len	= outList.length;
+            var temp;
+            var tlen;
+            for (i = 0; i < len; i++)
+            {
+                temp 	= outList[i];
+                rowNum 	= needList[i];
+                for (j = 0, tlen = temp.length; j < tlen; j++)
+                {
+                    item				= temp[j];
+
+                    if(this._direction == Direction.HORIZONTAL){
+                        item.setItemId(rowNum * this.col + j);
+                        item.setData(this._data[item.getItemId()-this.col]);
+                        item.setPositionY((Math.floor(item.getItemId() / this.col) * this.getItemSize())
+                            - this._currentPoint - this.getItemSize());
+                    }
+                    else
+                    {
+                        item.setItemId(rowNum * this.row + j);
+                        item.setData(this._data[item.getItemId()-this.row]);
+                        item.setPositionX((Math.floor(item.getItemId() / this.row) * this.getItemSize())
+                            - this._currentPoint - this.getItemSize());
+                    }
+                }
+            }
+        }
+    },
+    /**
+     * 行或列的间距
+     */
+    getItemSize:function(){
+        if(this._direction == Direction.HORIZONTAL)
+        {
+            cc.log("MultiList getItemSize contentWidth:"+this.itemInstance.getContentSize().width
+                +" contentHeight:"+this.itemInstance.getContentSize().height);
+            return this.itemInstance.getContentSize().height + this.rowSpace;
+        }
+        return this.itemInstance.getContentSize().width + this.colSpace;
+    },
+    /**
+     * 获取行列的索引
+     */
     getIndex:function(){
         return this._index;
     },
-    setIndex:function(idx,bAnim,dur){
-        if(idx<0)
-            idx = 0;
-        else if(idx>this._maxIndex)
-            idx = this._maxIndex;
-        this._index = idx;
-
-        var offX = 0;
-        var offY = 0;
-        if(cc.SCROLLVIEW_DIRECTION_HORIZONTAL = this._direction)
-            offY = -(this.itemInstance.height + this.rowSpace)*idx;
-        else
-            offX = -(this.itemInstance.width + this.colSpace)*idx;
-        var offPt = cc.p(offX,offY);
-        if(bAnim)
+    setIndex:function(value){
+        if(value <=0)
         {
-            if(dur>0)
-                this._tableView.setContentOffsetInDuration(offPt,dur);
-            else
-                this._tableView.setContentOffset(offPt,true);
+            value = 0;
         }
-        else
-            this._tableView.setContentOffset(offPt,false);
-    },
-    getPageNum:function(){
-        if(cc.SCROLLVIEW_DIRECTION_HORIZONTAL = this._direction)
-            return this.row;
-        else
-            return this.col;
-    },
-    searchItem:function(searchField,filedValue){
-        var len = this._data.length;
-        for(var i=0;i<len;++i)
+        else if(value >= this.getTotalIndex())
         {
-            var cell = this._tableView.cellAtIndex(i);
-            if(cell && cell.getData() && filedValue == cell.getData()[searchField])
-                return cell;
+            value = this.getTotalIndex();
+        }
+        if(Math.floor(this._index - value) >= 5)
+        {
+            if(this._index < value)
+            {
+                this.setCurrentPoint((value - 5) * this.getItemSize());
+            }
+            else
+            {
+                this.setCurrentPoint((value + 5) * this.getItemSize());
+            }
+        }
+        this._index = value;
+        //Tweener.addTween(this,{time:.5,currentPoint:index * itemSize,transition:Equations.easeOutExpo});
+    },
+    /**
+     * 总索引数
+     */
+    getTotalIndex:function(){
+        var num;
+        if(this._direction == Direction.HORIZONTAL)
+        {
+            num = Math.ceil(this.data.length / this.col) - this.row;
+        }
+        else if(this._direction == Direction.VERTICAL)
+        {
+            num = Math.ceil(this.data.length / this.row) - this.col;
+        }
+
+        return num <0?0:num;
+    },
+    /**
+     * 获取列表位置
+     */
+    getCurrentPoint:function(){
+        return this._currentPoint;
+    },
+    /**
+     * 设置列表位置
+     */
+    setCurrentPoint:function(value){
+        this._currentPoint = value;
+        if(this._currentPoint >= this.getTotalIndex() * this.getItemSize())
+        {
+            this._currentPoint 	= this.getTotalIndex() * this.getItemSize();
+        }else if(this._currentPoint<=0){
+            this._currentPoint = 0;
+        }
+        this.fill();
+    },
+    /**
+     * 单页的行或列数
+     */
+    getPageNum:function(){
+        if(this._direction == Direction.HORIZONTAL)
+        {
+            return this.row;
+        }
+        return this.col;
+    },
+    // --------------------------------------------------------
+    // -------------------- 对数据的查询操作 --------------------
+    // --------------------------------------------------------
+    /**
+     * 查找ITEM
+     */
+    searchItem:function(searchField,filedValue){
+        var item;
+        var len = this.mList.length;
+        var i;
+        for (i = 0; i < len;i++ ){
+            var lenj = this.mList[i].length;
+            for (var j = 0 ; j < lenj; j++)
+            {
+                item                = this.mList[i][j];
+                if(item.getData() && item.getData()[searchField] == filedValue){
+                    return item;
+                }
+            }
         }
         return null;
     },
+    /**
+     * update single item
+     */
     updateItem:function(searchField,filedValue,value){
         var item = this.searchItem(searchField,filedValue);
         if(item){
-            item.data = value;
+            item.setData(value);
         }
         this.updateItemData(searchField,filedValue,value);
     },
+    /**
+     *  查找数据池里面的数据
+     */
     searchItemData:function(searchField,filedValue){
-        var len = this._data.length;
-        for(var i=0;i<len;++i)
-        {
-            var o = this._data[i];
-            if(o && filedValue == o[searchField])
-               return o;
+        var o;
+        var len = this.data.length;
+        var i;
+        for (i = 0; i < len;i++ ){
+            o = this.data[i];
+            if(o && o[searchField] == filedValue){
+                return o;
+            }
         }
         return null;
     },
+    /**
+     * 执行所有ITEM的update方法
+     */
     updateItems:function(object){
-        var len = this._data.length;
-        for(var i=0;i<len;++i)
-        {
-            var cell = this._tableView.cellAtIndex(i);
-            if(cell)
-                cell.updateOutData(object);
+        var item;
+        var len = this.mList.length;
+        var i;
+        for (i = 0; i < len;i++ ){
+            var lenj = this.mList[i].length
+            for (var j = 0 ; j < lenj; j++)
+            {
+                item                = this.mList[i][j];
+                if(item.data){
+                    item.updateObject(object);
+                }
+            }
         }
     },
+    /**
+     * 只更新数据池里的数据
+     */
     updateItemData:function(searchField,filedValue,value){
-        var len = this._data.length;
-        for(var i=0;i<len;++i)
-        {
-            var o = this._data[i];
-            if(o && filedValue == o[searchField])
-                o[searchField] = value;
+        var o;
+        var len = this.data.length;
+        var i;
+        for (i = 0; i < len;i++ ){
+            o = this.data[i];
+            if(o && o[searchField] == filedValue){
+                this.data[i] = value;
+                break;
+            }
         }
     }
 });
