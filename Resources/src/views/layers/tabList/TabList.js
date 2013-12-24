@@ -16,12 +16,9 @@ var TabList = cc.Layer.extend({
 
     _data:null,
     _currentItem:null,
-
+    _touchedItem:null,
     ctor:function(cls,skinCls, quantity, space, direction){
         this._super();
-
-        this.setTouchEnabled(true);
-        this.setTouchMode(cc.TOUCH_ONE_BY_ONE);
 
         this._space				= space;
         this.itemCls			    = cls;
@@ -31,7 +28,18 @@ var TabList = cc.Layer.extend({
         this.skinCls        = skinCls;
         this._instance           = new cls();
         this._instance.retain();
+    },
+    init:function(){
+        cc.log("TabList init");
+        if(!this._super())
+            return false;
+        cc.log("TabList init start");
+
+        this.setTouchMode(cc.TOUCH_ONE_BY_ONE);
+        this.setTouchEnabled(true);
+        this.updateDirection();
         this.initlize();
+        return true;
     },
 
     getCurrentItem:function(){
@@ -89,13 +97,50 @@ var TabList = cc.Layer.extend({
         }
     },
     onTouchBegan:function(touch,event){
-        return true;
+        this._touchedItem = this.getTouchedItem(this.convertToNodeSpace(touch.getLocation()));
+        cc.log("TabList onTouchBegan");
+        if(this._touchedItem && this._touchedItem != this._currentItem)
+        {
+            cc.log("TabList onTouchBegan Enter");
+            this._touchedItem.onBeginTouched();
+            return true;
+        }
+        return false;
     },
     onTouchMoved:function(touch,event){
-
+        cc.log("TabList onTouchMoved");
+        var overItem = this.getTouchedItem(this.convertToNodeSpace(touch.getLocation()));
+        if(overItem && overItem != this._touchedItem && overItem != this._currentItem)
+        {
+            cc.log("TabList onTouchMoved Enter");
+            this._touchedItem.onUnselect();
+            this._touchedItem = overItem;
+            this._touchedItem.onBeginTouched();
+        }
     },
     onTouchEnded:function(touch,event){
-
+        cc.log("TabList onTouchEnded");
+        if(this._touchedItem && this._touchedItem != this._currentItem)
+        {
+            cc.log("TabList onTouchEnded Enter");
+            if(this._currentItem)
+                this._currentItem.onUnselect();
+            this._currentItem = this._touchedItem;
+            this._currentItem.onSelect();
+        }
+        this._touchedItem = null;
+    },
+    getTouchedItem:function(p){
+        cc.log("TabList getTouchedItem p.x:"+ p.x + " p.y"+ p.y);
+        var len = this._list.length;
+        for(var i=0; i<len; ++i)
+        {
+            cc.log("TabList getTouchedItem i:"+i+" bounding.x:"+ this._list[i].getBoundingBox().x
+                + " bounding.y"+ this._list[i].getBoundingBox().y);
+            if(cc.rectContainsPoint(this._list[i].getBoundingBox(),p))
+                return this._list[i];
+        }
+        return null;
     },
     refreshButtonDepth:function(value){
         var len = this._list.length;
@@ -106,6 +151,7 @@ var TabList = cc.Layer.extend({
         value.setZOrder(1);
     },
     initlize:function(){
+        cc.log("TabList initlize")
         this._list				= [];
         if(this._container)
             this._container.release();
@@ -118,19 +164,23 @@ var TabList = cc.Layer.extend({
      * 刷新显示对象中的元素
      */
     refreshListDisplayItems:function(){
-        var i
+        var i;
         var item;
 
         for (i = 0; i < this._quantity; i++)
         {
+            cc.log("TabList refreshListDisplayItems i:"+i+" _quantity"+this._quantity);
             item		 = new this.itemCls();
             this._container.addChild(item);
             if(this.skinCls != null){
                 item.setSkin(new this.skinCls);
             }
+            cc.log("TabList refreshListDisplayItems _point"+this._point+" _size"+this._size);
             item[this._point]((item.getContentSize()[this._size] + this._space) * i);
             this._list.push(item);
             item.retain();
+            if(0 == i)
+                this.setCurrentItem(item);
         }
     },
     /**
@@ -140,16 +190,18 @@ var TabList = cc.Layer.extend({
         if(this._direction!=value)
         {
             this._direction	= value;
-
-            if(this._direction == Direction.HORIZONTAL)
-            {
-                this._point			= 'getPositionX';
-                this._size			= 'width';
-            }else if(this._direction == Direction.VERTICAL)
-            {
-                this._point			= 'getPositionY';
-                this._size			= 'height';
-            }
+            this.updateDirection();
+        }
+    },
+    updateDirection:function(){
+        if(this._direction == Direction.HORIZONTAL)
+        {
+            this._point			= 'setPositionX';
+            this._size			= 'width';
+        }else if(this._direction == Direction.VERTICAL)
+        {
+            this._point			= 'setPositionY';
+            this._size			= 'height';
         }
     },
     /**
@@ -162,6 +214,7 @@ var TabList = cc.Layer.extend({
         var len = this._list.length;
         for(var i=0; i<len; ++i)
         {
+            this._list[i].dispose();
             this._list[i].release();
             this._list[i] = null;
         }

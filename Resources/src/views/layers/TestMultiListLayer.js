@@ -4,7 +4,8 @@
 var TestMultiListLayer = cc.Layer.extend({
     _data:null,
     init:function(){
-        this._super();
+        if(!this._super())
+            return false;
 
         var director = cc.Director.getInstance();
         var winSize = director.getWinSize();
@@ -42,6 +43,7 @@ var TestMultiListLayer = cc.Layer.extend({
         }
 
         list.setData(this._data);
+        return true;
     }
 });
 

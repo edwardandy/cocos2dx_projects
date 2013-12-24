@@ -12,12 +12,17 @@ require("src/views/layers/baseTestLayer.js");
 require("src/views/layers/testLayer1.js");
 require("src/views/layers/testLayer2.js");
 
+require("src/views/layers/global.js")
 require("src/views/layers/multiList/ListItem.js");
 require("src/views/layers/multiList/MultiList.js");
 require("src/views/layers/TestMultiListLayer.js");
 
+require("src/views/layers/tabList/TabItem.js");
+require("src/views/layers/tabList/TabList.js");
+require("src/views/layers/TestTabListLayer.js");
+
 var myScene = cc.Scene.create();//new MyScene();
-var layer = new TestMultiListLayer; //new TestLayer2;
+var layer = new TestTabListLayer; //new TestMultiListLayer; //new TestLayer2;
 myScene.addChild(layer);
 layer.init();
 

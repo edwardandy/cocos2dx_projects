@@ -1,11 +1,6 @@
 /**
  * Created by Administrator on 13-12-16.
  */
-var Direction = {
-    HORIZONTAL:"horizontal",
-    VERTICAL:"vertical"
-};
-
 var MultiList = cc.Layer.extend({
     itemClazz:null,
     skinClazz:null,
