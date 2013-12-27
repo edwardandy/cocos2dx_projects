@@ -7,7 +7,7 @@ var TestTabListLayer = cc.Layer.extend({
             return false;
         var winSize = cc.Director.getInstance().getWinSize();
 
-        tabList = new TabList(TestTabItem,TestTabSkin,3,0);
+        var tabList = new TabList(TestTabItem,TestTabSkin,3,0);
         tabList.init();
         tabList.setPosition(cc.p(100,100));
         this.addChild(tabList);

@@ -30,10 +30,8 @@ var TabList = cc.Layer.extend({
         this._instance.retain();
     },
     init:function(){
-        cc.log("TabList init");
         if(!this._super())
             return false;
-        cc.log("TabList init start");
 
         this.setTouchMode(cc.TOUCH_ONE_BY_ONE);
         this.setTouchEnabled(true);
@@ -98,31 +96,25 @@ var TabList = cc.Layer.extend({
     },
     onTouchBegan:function(touch,event){
         this._touchedItem = this.getTouchedItem(this.convertToNodeSpace(touch.getLocation()));
-        cc.log("TabList onTouchBegan");
         if(this._touchedItem && this._touchedItem != this._currentItem)
         {
-            cc.log("TabList onTouchBegan Enter");
             this._touchedItem.onBeginTouched();
             return true;
         }
         return false;
     },
     onTouchMoved:function(touch,event){
-        cc.log("TabList onTouchMoved");
         var overItem = this.getTouchedItem(this.convertToNodeSpace(touch.getLocation()));
         if(overItem && overItem != this._touchedItem && overItem != this._currentItem)
         {
-            cc.log("TabList onTouchMoved Enter");
             this._touchedItem.onUnselect();
             this._touchedItem = overItem;
             this._touchedItem.onBeginTouched();
         }
     },
     onTouchEnded:function(touch,event){
-        cc.log("TabList onTouchEnded");
         if(this._touchedItem && this._touchedItem != this._currentItem)
         {
-            cc.log("TabList onTouchEnded Enter");
             if(this._currentItem)
                 this._currentItem.onUnselect();
             this._currentItem = this._touchedItem;
@@ -131,12 +123,9 @@ var TabList = cc.Layer.extend({
         this._touchedItem = null;
     },
     getTouchedItem:function(p){
-        cc.log("TabList getTouchedItem p.x:"+ p.x + " p.y"+ p.y);
         var len = this._list.length;
         for(var i=0; i<len; ++i)
         {
-            cc.log("TabList getTouchedItem i:"+i+" bounding.x:"+ this._list[i].getBoundingBox().x
-                + " bounding.y"+ this._list[i].getBoundingBox().y);
             if(cc.rectContainsPoint(this._list[i].getBoundingBox(),p))
                 return this._list[i];
         }
@@ -151,7 +140,6 @@ var TabList = cc.Layer.extend({
         value.setZOrder(1);
     },
     initlize:function(){
-        cc.log("TabList initlize")
         this._list				= [];
         if(this._container)
             this._container.release();
@@ -169,13 +157,11 @@ var TabList = cc.Layer.extend({
 
         for (i = 0; i < this._quantity; i++)
         {
-            cc.log("TabList refreshListDisplayItems i:"+i+" _quantity"+this._quantity);
             item		 = new this.itemCls();
             this._container.addChild(item);
             if(this.skinCls != null){
                 item.setSkin(new this.skinCls);
             }
-            cc.log("TabList refreshListDisplayItems _point"+this._point+" _size"+this._size);
             item[this._point]((item.getContentSize()[this._size] + this._space) * i);
             this._list.push(item);
             item.retain();
