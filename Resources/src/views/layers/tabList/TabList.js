@@ -10,9 +10,9 @@ var TabList = cc.Layer.extend({
     _space:0,
     itemCls:null,
     skinCls:null,
+
     _list:null,
     _container:null,
-    _instance:null,
 
     _data:null,
     _currentItem:null,
@@ -26,8 +26,6 @@ var TabList = cc.Layer.extend({
         if(direction)
             this.direction      = direction;
         this.skinCls        = skinCls;
-        this._instance           = new cls();
-        this._instance.retain();
     },
     init:function(){
         if(!this._super())
@@ -194,30 +192,15 @@ var TabList = cc.Layer.extend({
      * 被回收前需要手动释放拥有的其他对象的引用
      */
     dispose:function(){
-        this.itemCls = null;
-        this.skinCls = null;
 
         var len = this._list.length;
         for(var i=0; i<len; ++i)
         {
             this._list[i].dispose();
             this._list[i].release();
-            this._list[i] = null;
         }
-        this._list = null;
 
         if(this._container)
             this._container.release();
-        this._container = null;
-
-        if(this._instance)
-            this._instance.release();
-        this._instance = null;
-
-        this._data = null;
-
-        if(this._currentItem)
-            this._currentItem.release();
-        this._currentItem = null;
     }
 });

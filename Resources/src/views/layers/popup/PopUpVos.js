@@ -49,10 +49,6 @@ var PopUpInfo = cc.Class.extend({
      */
     params:null,
     popUpData:null,
-    dispose:function(){
-        this.params = null;
-        this.popUpData = null;
-    },
     ctor:function(modal,type,params,popup){
         if(modal)
             this.modal = modal;

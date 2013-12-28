@@ -258,6 +258,15 @@ var MultiList = cc.Layer.extend({
         }
         return this.itemInstance.getContentSize().width + this.colSpace;
     },
+    convertY:function(srcY){
+        var height = (this.itemInstance.getContentSize().height + this.rowSpace)*this.row
+                - this.rowSpace;
+        return height - srcY - this.itemInstance.getContentSize().height
+                + this.itemInstance.getAnchorPointInPoints().y;
+    },
+    convertX:function(srcX){
+        return srcX + this.itemInstance.getAnchorPointInPoints().x;
+    },
     /**
      * 获取行列的索引
      */

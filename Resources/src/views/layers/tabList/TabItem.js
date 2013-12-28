@@ -35,7 +35,5 @@ var TabItem = cc.Node.extend({
     dispose:function(){
         if(this.skin)
             this.skin.release();
-        this.skin = null;
-        this._data = null;
     }
 });

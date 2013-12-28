@@ -145,11 +145,6 @@ var PopUpManager = cc.Class.extend({
             this.startClose(this.mOpenList[i]);
         }
     },
-    onLoadComplete:function(win){
-        win.popUpData.state = 2;
-        win.popUpData.owner.initilize();
-        this.startOpen(win,1);
-    },
     /**
      *  准备打开窗口
      * @param o
@@ -356,7 +351,6 @@ var PopUpManager = cc.Class.extend({
             if (pd == o)
             {
                 vector.splice(i,1);
-                pd.dispose();
                 return;
             }
         }
