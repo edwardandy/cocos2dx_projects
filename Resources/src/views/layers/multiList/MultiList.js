@@ -36,29 +36,33 @@ var MultiList = cc.Layer.extend({
             this.itemInstance.setSkin(new skinClazz());
         }
 
+        //遮罩层
+        this._mask				= cc.LayerColor.create(cc.c4b(255,0,0,255),0,0);
+        this._mask.retain();
+
         //容器
-        this.mContainer			= cc.Layer.create();
+        this.mContainer			= cc.ClippingNode.create(this._mask);
         this.mContainer.retain();
         this.addChild(this.mContainer);
 
-
-        //遮罩层
-        this._mask				= cc.DrawNode.create();
-        this._mask.retain();
-
-        //this.mContainer.stencil 	= this._mask;
-
         this.make();
-        //this.drawMask();
+        this.drawMask();
     },
     /**
      * 绘制遮罩
      */
     drawMask:function(drawX, drawY, drawWidth, drawHeight){
-        var triangle = [cc.p(-100, -100),cc.p(100, -100), cc.p(0, 100)];
+        if(!drawX)
+            drawX = 0;
+        if(!drawY)
+            drawY = 0;
+        if(!drawWidth)
+            drawWidth = (this.itemInstance.getContentSize().width+this.colSpace)*this.col - this.colSpace;
+        if(!drawHeight)
+            drawHeight = (this.itemInstance.getContentSize().height+this.rowSpace)*this.row - this.rowSpace;
+        this._mask.setPosition(cc.p(drawX,drawY));
+        this._mask.setContentSize(cc.size(drawWidth,drawHeight));
 
-        var green = cc.c4f(0, 1, 0, 1);
-        this._mask.drawPoly(triangle, green, 3, green);
 
     },
     /**
@@ -155,15 +159,15 @@ var MultiList = cc.Layer.extend({
                         item.setItemId(rowNum * this.col + j);
                         item.setData(this._data[item.getItemId()-this.col]);
                         cc.log("MultiList fill itemid:"+(item.getItemId())+" itemDataIdx:"+(item.getItemId()-this.col));
-                        item.setPosition(cc.p(j * (this.itemInstance.getContentSize().width + this.colSpace)
-                        ,(rowNum * this.getItemSize())-this._currentPoint - this.getItemSize()));
+                        item.setPosition(this.convertX(cc.p(j * (this.itemInstance.getContentSize().width + this.colSpace)))
+                        ,this.convertY((rowNum * this.getItemSize())-this._currentPoint - this.getItemSize()));
                     }
                     else
                     {
                         item.setItemId(rowNum * this.row + j);
                         item.setData(this._data[item.getItemId()-this.row]);
-                        item.setPosition(cc.p((rowNum * this.getItemSize())-this._currentPoint - this.getItemSize()
-                            ,j * (this.itemInstance.getContentSize().height + this.rowSpace)));
+                        item.setPosition(this.convertX(cc.p((rowNum * this.getItemSize())-this._currentPoint - this.getItemSize()))
+                            ,this.convertY(j * (this.itemInstance.getContentSize().height + this.rowSpace)));
                     }
                 }
             }
@@ -206,13 +210,13 @@ var MultiList = cc.Layer.extend({
 
                         if(this._direction == Direction.HORIZONTAL){
 
-                            item.setPositionY((Math.floor(item.getItemId() / this.col) * this.getItemSize())
-                                - this._currentPoint - this.getItemSize());
+                            item.setPositionY(this.convertY((Math.floor(item.getItemId() / this.col) * this.getItemSize())
+                                - this._currentPoint - this.getItemSize()));
                         }
                         else
                         {
-                            item.setPositionX((Math.floor(item.getItemId() / this.row) * this.getItemSize())
-                                - this._currentPoint - this.getItemSize());
+                            item.setPositionX(this.convertX((Math.floor(item.getItemId() / this.row) * this.getItemSize())
+                                - this._currentPoint - this.getItemSize()));
                         }
                     }
                 }
@@ -232,15 +236,15 @@ var MultiList = cc.Layer.extend({
                     if(this._direction == Direction.HORIZONTAL){
                         item.setItemId(rowNum * this.col + j);
                         item.setData(this._data[item.getItemId()-this.col]);
-                        item.setPositionY((Math.floor(item.getItemId() / this.col) * this.getItemSize())
-                            - this._currentPoint - this.getItemSize());
+                        item.setPositionY(this.convertY((Math.floor(item.getItemId() / this.col) * this.getItemSize())
+                            - this._currentPoint - this.getItemSize()));
                     }
                     else
                     {
                         item.setItemId(rowNum * this.row + j);
                         item.setData(this._data[item.getItemId()-this.row]);
-                        item.setPositionX((Math.floor(item.getItemId() / this.row) * this.getItemSize())
-                            - this._currentPoint - this.getItemSize());
+                        item.setPositionX(this.convertX((Math.floor(item.getItemId() / this.row) * this.getItemSize())
+                            - this._currentPoint - this.getItemSize()));
                     }
                 }
             }
@@ -282,7 +286,7 @@ var MultiList = cc.Layer.extend({
         {
             value = this.getTotalIndex();
         }
-        if(Math.floor(this._index - value) >= 5)
+        if(Math.abs(this._index - value) >= 5)
         {
             if(this._index < value)
             {
@@ -294,7 +298,18 @@ var MultiList = cc.Layer.extend({
             }
         }
         this._index = value;
-        //Tweener.addTween(this,{time:.5,currentPoint:index * itemSize,transition:Equations.easeOutExpo});
+        var acTween = cc.ActionTween.create(0.5,'currentPoint'
+            ,this.getCurrentPoint(),index * this.getItemSize());
+        var acEase = cc.EaseExponentialOut.create(acTween);
+        this.runAction(acEase);
+    },
+    updateTweenAction:function(value, key){
+        switch(key)
+        {
+            case 'currentPoint':
+                this.setCurrentPoint(value);
+                break;
+        }
     },
     /**
      * 总索引数
