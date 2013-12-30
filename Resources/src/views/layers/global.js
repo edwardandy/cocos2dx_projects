@@ -4,4 +4,4 @@
 var Direction = {
     HORIZONTAL:"horizontal",
     VERTICAL:"vertical"
-}
+};

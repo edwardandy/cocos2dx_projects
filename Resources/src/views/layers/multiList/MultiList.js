@@ -18,16 +18,35 @@ var MultiList = cc.Layer.extend({
     _index:0,
     _mask:null,
     itemInstance:null,
+    _bClicked:false,
+    _startPt:null,
+    _curSelectItem:null,
+    _bMultiSelect:false,
+    dispose:function(){
+        this.mContainer.release();
+
+        var len1 = this.mList.length;
+        for(var i=0; i<len1; ++i)
+        {
+            var len2 = this.mList[i].length;
+            for(var j=0;j<len2;++j)
+            {
+                this.mList[i][j].dispose();
+            }
+        }
+
+        this._mask.release();
+        this.itemInstance.release();
+    },
     ctor:function(clazz,skinClazz, row, col, rowSpace,colSpace,direction){
         this._super();
-
         this.itemClazz 		= clazz;
         this.skinClazz 		= skinClazz;
         this.row 			= row;
         this.col 			= col;
         this.rowSpace 		= rowSpace;
         this.colSpace 		= colSpace;
-        this.direction		= direction? direction : Direction.HORIZONTAL;
+        this._direction		= direction? direction : Direction.HORIZONTAL;
         this.itemInstance	= new clazz();
         this.itemInstance.retain();
 
@@ -37,7 +56,7 @@ var MultiList = cc.Layer.extend({
         }
 
         //遮罩层
-        this._mask				= cc.LayerColor.create(cc.c4b(255,0,0,255),0,0);
+        this._mask				= cc.LayerColor.create(cc.c4b(255,0,0,255),500,500);
         this._mask.retain();
 
         //容器
@@ -47,6 +66,11 @@ var MultiList = cc.Layer.extend({
 
         this.make();
         this.drawMask();
+
+        this.setTouchMode(cc.TOUCH_ONE_BY_ONE);
+        this.setTouchEnabled(true);
+        this.setContentSize(cc.size((this.itemInstance.getContentSize().width+this.colSpace)*this.col - this.colSpace
+            ,(this.itemInstance.getContentSize().height+this.rowSpace)*this.row - this.rowSpace));
     },
     /**
      * 绘制遮罩
@@ -62,8 +86,6 @@ var MultiList = cc.Layer.extend({
             drawHeight = (this.itemInstance.getContentSize().height+this.rowSpace)*this.row - this.rowSpace;
         this._mask.setPosition(cc.p(drawX,drawY));
         this._mask.setContentSize(cc.size(drawWidth,drawHeight));
-
-
     },
     /**
      * 刷新显示对象中的元素
@@ -143,30 +165,26 @@ var MultiList = cc.Layer.extend({
         var needList	= [];
         var outList	= [];
         var rowNum = -1;
-        cc.log("MultiList fill len:"+len+" isAll:"+isAll);
+        cc.log("MultiList fill len:"+len+" isAll:"+isAll+" dir:"+this._direction);
         if(isAll){
             for (i = 0; i < len; i++)
             {
-                cc.log("MultiList fill i:"+i);
                 rowNum = Math.floor((this._currentPoint + (i * this.getItemSize())) / this.getItemSize());
                 for (j = 0; j < this.mList[i].length; j++)
                 {
-                    cc.log("MultiList fill j:"+j+" _direction:"+this._direction);
                     item							= this.mList[i][j];
                     if(this._direction == Direction.HORIZONTAL){
 
-                        cc.log("MultiList fill rowNum:"+rowNum+" this.col:"+this.col);
                         item.setItemId(rowNum * this.col + j);
                         item.setData(this._data[item.getItemId()-this.col]);
-                        cc.log("MultiList fill itemid:"+(item.getItemId())+" itemDataIdx:"+(item.getItemId()-this.col));
-                        item.setPosition(this.convertX(cc.p(j * (this.itemInstance.getContentSize().width + this.colSpace)))
+                        item.setPosition(this.convertX(j * (this.itemInstance.getContentSize().width + this.colSpace))
                         ,this.convertY((rowNum * this.getItemSize())-this._currentPoint - this.getItemSize()));
                     }
                     else
                     {
                         item.setItemId(rowNum * this.row + j);
                         item.setData(this._data[item.getItemId()-this.row]);
-                        item.setPosition(this.convertX(cc.p((rowNum * this.getItemSize())-this._currentPoint - this.getItemSize()))
+                        item.setPosition(this.convertX((rowNum * this.getItemSize())-this._currentPoint - this.getItemSize())
                             ,this.convertY(j * (this.itemInstance.getContentSize().height + this.rowSpace)));
                     }
                 }
@@ -256,8 +274,6 @@ var MultiList = cc.Layer.extend({
     getItemSize:function(){
         if(this._direction == Direction.HORIZONTAL)
         {
-            cc.log("MultiList getItemSize contentWidth:"+this.itemInstance.getContentSize().width
-                +" contentHeight:"+this.itemInstance.getContentSize().height);
             return this.itemInstance.getContentSize().height + this.rowSpace;
         }
         return this.itemInstance.getContentSize().width + this.colSpace;
@@ -265,10 +281,12 @@ var MultiList = cc.Layer.extend({
     convertY:function(srcY){
         var height = (this.itemInstance.getContentSize().height + this.rowSpace)*this.row
                 - this.rowSpace;
+        //cc.log("convertY srcY:"+srcY+" height:"+height);
         return height - srcY - this.itemInstance.getContentSize().height
                 + this.itemInstance.getAnchorPointInPoints().y;
     },
     convertX:function(srcX){
+        //cc.log("convertX srcX:"+srcX);
         return srcX + this.itemInstance.getAnchorPointInPoints().x;
     },
     /**
@@ -298,10 +316,13 @@ var MultiList = cc.Layer.extend({
             }
         }
         this._index = value;
-        var acTween = cc.ActionTween.create(0.5,'currentPoint'
-            ,this.getCurrentPoint(),index * this.getItemSize());
+        this.stopAllActions();
+        this.setCurrentPoint(this._index * this.getItemSize());
+        //需要jsbinding实现
+        /*var acTween = cc.ActionTween.create(0.5,'currentPoint'
+            ,this.getCurrentPoint(),this._index * this.getItemSize());
         var acEase = cc.EaseExponentialOut.create(acTween);
-        this.runAction(acEase);
+        this.runAction(acEase);*/
     },
     updateTweenAction:function(value, key){
         switch(key)
@@ -318,11 +339,11 @@ var MultiList = cc.Layer.extend({
         var num;
         if(this._direction == Direction.HORIZONTAL)
         {
-            num = Math.ceil(this.data.length / this.col) - this.row;
+            num = Math.ceil(this._data.length / this.col) - this.row;
         }
         else if(this._direction == Direction.VERTICAL)
         {
-            num = Math.ceil(this.data.length / this.row) - this.col;
+            num = Math.ceil(this._data.length / this.row) - this.col;
         }
 
         return num <0?0:num;
@@ -393,10 +414,10 @@ var MultiList = cc.Layer.extend({
      */
     searchItemData:function(searchField,filedValue){
         var o;
-        var len = this.data.length;
+        var len = this._data.length;
         var i;
         for (i = 0; i < len;i++ ){
-            o = this.data[i];
+            o = this._data[i];
             if(o && o[searchField] == filedValue){
                 return o;
             }
@@ -415,7 +436,7 @@ var MultiList = cc.Layer.extend({
             for (var j = 0 ; j < lenj; j++)
             {
                 item                = this.mList[i][j];
-                if(item.data){
+                if(item.getData()){
                     item.updateObject(object);
                 }
             }
@@ -426,14 +447,121 @@ var MultiList = cc.Layer.extend({
      */
     updateItemData:function(searchField,filedValue,value){
         var o;
-        var len = this.data.length;
+        var len = this._data.length;
         var i;
         for (i = 0; i < len;i++ ){
-            o = this.data[i];
+            o = this._data[i];
             if(o && o[searchField] == filedValue){
-                this.data[i] = value;
+                this._data[i] = value;
                 break;
             }
         }
+    },
+    onTouchBegan:function(touch,evt){
+        var loc = touch.getLocation();
+        loc = this.getParent().convertToNodeSpace(loc);
+        if(!cc.rectContainsPoint(this.getBoundingBox(),loc))
+            return false;
+        this._bClicked = true;
+        this._startPt = loc;
+        this.stopAllActions();
+        return true;
+    },
+    onTouchMoved:function(touch,evt){
+        var movedPt = touch.getLocation();
+        var delta;
+        if(Direction.HORIZONTAL == this._direction)
+            delta = movedPt.y - this._startPt.y;
+        else
+            delta = this._startPt.x - movedPt.x;
+        if(Math.abs(delta) >2)
+            this._bClicked = false;
+        if(this._bClicked)
+            return;
+
+        var deltaPt = touch.getDelta();
+        if(Direction.HORIZONTAL == this._direction)
+            delta = deltaPt.y;
+        else
+            delta = -deltaPt.x;
+        this.setCurrentPoint(this._currentPoint + delta);
+
+    },
+    onTouchEnded:function(touch,evt){
+        if(this._bClicked)
+        {
+            var clickPt = this.convertToNodeSpace(touch.getLocation());
+            var len = this.mList.length;
+            for(var i=0; i<len; ++i)
+            {
+                var item = this.mList[i][0];
+                if((Direction.HORIZONTAL == this._direction
+                    && clickPt.y>=(item.getPositionY()-item.getAnchorPointInPoints().y)
+                    && clickPt.y<(item.getPositionY()-item.getAnchorPointInPoints().y+item.getContentSize().height))
+                    || (Direction.VERTICAL == this._direction)
+                    && clickPt.x>=(item.getPositionX()-item.getAnchorPointInPoints().x)
+                    && clickPt.x<(item.getPositionX()-item.getAnchorPointInPoints().x+item.getContentSize().width))
+                {
+                    len = this.mList[i].length;
+                    for(var j=0;j<len;++j)
+                    {
+                        item = this.mList[i][j];
+                        if((Direction.VERTICAL == this._direction
+                            && clickPt.y>=(item.getPositionY()-item.getAnchorPointInPoints().y)
+                            && clickPt.y<(item.getPositionY()-item.getAnchorPointInPoints().y+item.getContentSize().height))
+                            || (Direction.HORIZONTAL == this._direction)
+                            && clickPt.x>=(item.getPositionX()-item.getAnchorPointInPoints().x)
+                            && clickPt.x<(item.getPositionX()-item.getAnchorPointInPoints().x+item.getContentSize().width))
+                        {
+                            if(this._bMultiSelect)
+                            {
+                                if(item.isSelected())
+                                    item.onUnselected();
+                                else
+                                    item.onSelected();
+                            }
+                            else
+                            {
+                                cc.log("singleSelect");
+                                if(item != this._curSelectItem)
+                                {
+                                    if(this._curSelectItem)
+                                        this._curSelectItem.onUnselected();
+                                    this._curSelectItem = item;
+                                    item.onSelected();
+                                }
+                                else
+                                    this._curSelectItem.onUnselected();
+                            }
+
+                        }
+                    }
+                }
+            }
+            return;
+        }
+        var deltaPt = touch.getDelta();
+        var delta;
+        if(Direction.HORIZONTAL == this._direction)
+            delta = deltaPt.y;
+        else
+            delta = -deltaPt.x;
+
+        var target = this._currentPoint + delta*50;
+        if(target >= this.getTotalIndex() * this.getItemSize())
+        {
+            target 	= this.getTotalIndex() * this.getItemSize();
+        }else if(target<=0){
+            target = 0;
+        }
+
+        //需要jsbinding实现
+        /*var acTween = cc.ActionTween.create(0.5,'currentPoint'
+            ,this.getCurrentPoint(),target);
+        var acEase = cc.EaseExponentialIn.create(acTween);
+        this.runAction(acEase);*/
+    },
+    setMultiSeleted:function(bMulti){
+        this._bMultiSelect = bMulti;
     }
 });

@@ -24,9 +24,13 @@ var TestMultiListLayer = cc.Layer.extend({
         bmLabel.setPosition(winSize.width/2,winSize.height - bmLabel.getContentSize().height/2-100);
         this.addChild(bmLabel);
 
-        var list = new MultiList(TestListItem,TestListSkin,5,5,0,0);
+        var list = new MultiList(TestListItem,TestListSkin,5,6,0,0);
         list.setPosition(50,50);
         this.addChild(list);
+
+        var list1 = new MultiList(TestListItem,TestListSkin,5,6,0,0,Direction.VERTICAL);
+        list1.setPosition(50,350);
+        this.addChild(list1);
 
         //var item = new TestListItem(new TestListSkin);
         //item.setPosition(100,100);
@@ -43,48 +47,61 @@ var TestMultiListLayer = cc.Layer.extend({
         }
 
         list.setData(this._data);
+        list1.setData(this._data);
         return true;
     }
 });
 
 var TestListItem = ListItem.extend({
-    setData:function(data){
-        //this._super();
-        this._data = data;
-        if(null !== this._data)
+    initlize:function(){
+        this._super();
+        var skin = this.getChildByTag(1);
+        if(skin)
         {
-            cc.log("TestListItem updateData step 1 data:"+this._data);
-            var skin = this.getChildByTag(1);
-            cc.log("TestListItem updateData step 2");
-            if(skin)
+            if(null != skin.getChildByTag(1))
+                skin.removeChildByTag(1,true);
+            if(null !== this._data)
             {
-                cc.log("TestListItem updateData step 3");
-                if(null != skin.getChildByTag(1))
-                    skin.removeChildByTag(1,true);
-                cc.log("TestListItem updateData step 4");
                 var i = this._data%8;
-                cc.log("TestListItem updateData step 5 i:"+i);
-                var sp = cc.Sprite.create("res/Images/blocks.png",cc.rect((i/2)*32,(i%2)*32,32,32));
-                cc.log("TestListItem updateData step 6 size:"+sp.getContentSize().width+" "+sp.getContentSize().height);
+                var sp = cc.Sprite.create("res/Images/blocks.png",cc.rect(Math.floor((i%4)/2)*32,(i%2)*32,32,32));
+                sp.setAnchorPoint(cc.p(0,0));
                 skin.addChild(sp,0,1);
-                cc.log("TestListItem updateData step 7");
             }
-            //this.setVisible(true);
         }
-        //else
-        //    this.setVisible(false);
+
+        cc.log("TestListItem x:"+this.getPositionX()+" y:"+this.getPositionY());
+    },
+    onSelected:function(){
+        this._super();
+        var skin = this.getChildByTag(1);
+        if(skin)
+        {
+            if(null != skin.getChildByTag(1))
+            {
+                skin.getChildByTag(1).setVisible(true);
+            }
+        }
+    },
+    onUnselected:function(){
+        this._super();
+        var skin = this.getChildByTag(1);
+        if(skin)
+        {
+            if(null != skin.getChildByTag(1))
+            {
+                skin.getChildByTag(1).setVisible(false);
+            }
+        }
     }
 });
 
 var TestListSkin = cc.Node.extend({
     ctor:function(){
-        cc.log("TestListSkin ctor begin");
         this._super();
 
         var sprite = cc.Sprite.create("res/Images/hole_effect.png");
         sprite.setAnchorPoint(cc.p(0,0));
         this.addChild(sprite);
         this.setContentSize(sprite.getContentSize());
-        cc.log("TestListSkin ctor:"+sprite.getContentSize().width+" "+sprite.getContentSize().height);
     }
 });

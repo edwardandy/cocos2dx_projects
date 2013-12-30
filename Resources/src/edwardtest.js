@@ -27,7 +27,7 @@ require("src/views/layers/popup/PopUpVos.js");
 require("src/views/layers/TestPopupManager.js");
 
 var myScene = cc.Scene.create();//new MyScene();
-var layer = new TestPopupManager;//new TestTabListLayer; //new TestMultiListLayer; //new TestLayer2;
+var layer = new TestMultiListLayer; //new TestPopupManager;//new TestTabListLayer; //new TestLayer2;
 myScene.addChild(layer);
 layer.init();
 

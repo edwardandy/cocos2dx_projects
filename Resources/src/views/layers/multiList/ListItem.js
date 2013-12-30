@@ -5,16 +5,19 @@ var ListItem = cc.Node.extend({
     _itemId:-1,
     _data:null,
     _skin:null,
+    _isSelected:false,
     ctor:function(){
         this._super();
     },
+    dispose:function(){
+        if(this._skin)
+            this._skin.release();
+    },
     setSkin:function(skin){
-        cc.log("ListItem ctor begin");
         this._skin = skin;
         this._skin.retain();
         this.addChild(this._skin,0,1);
         this.setContentSize(skin.getContentSize());
-        cc.log("ListItem ctor:"+skin.getContentSize().width+" "+skin.getContentSize().height);
     },
     setItemId:function(id){
         this._itemId = id;
@@ -23,15 +26,8 @@ var ListItem = cc.Node.extend({
         return this._itemId;
     },
     setData:function(data){
-        cc.log("ListItem setData:"+data);
         this._data = data;
-        if(this._data)
-        {
-            //this.setVisible(true);
-            this.initlize();
-        }else{
-            //this.setVisible(false);
-        }
+        this.initlize();
     },
     getData:function(){
         return this._data;
@@ -39,9 +35,16 @@ var ListItem = cc.Node.extend({
     initlize:function(){
 
     },
-    getbody:function(){
-        return this;
-    },
     updateObject:function(object){
+    },
+    isSelected:function(){
+        return this._isSelected;
+    },
+    onSelected:function(){
+        this._isSelected = true;
+    },
+    onUnselected:function(){
+        this._isSelected = false;
     }
 });
+
