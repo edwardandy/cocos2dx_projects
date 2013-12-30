@@ -20,8 +20,9 @@ var MultiList = cc.Layer.extend({
     itemInstance:null,
     _bClicked:false,
     _startPt:null,
-    _curSelectItem:null,
+    _curSelectItemId:-1,
     _bMultiSelect:false,
+    _multiSelectIds:[],
     dispose:function(){
         this.mContainer.release();
 
@@ -56,7 +57,7 @@ var MultiList = cc.Layer.extend({
         }
 
         //遮罩层
-        this._mask				= cc.LayerColor.create(cc.c4b(255,0,0,255),500,500);
+        this._mask				= cc.LayerColor.create(cc.c4b(255,0,0,255),0,0);
         this._mask.retain();
 
         //容器
@@ -151,7 +152,6 @@ var MultiList = cc.Layer.extend({
         this._currentPoint   = 0;
         this._index		= 0;
         this.fill(true);
-        cc.log("MultiList setData:"+value);
     },
     /**
      * 执行滚动时的数据更新
@@ -165,7 +165,6 @@ var MultiList = cc.Layer.extend({
         var needList	= [];
         var outList	= [];
         var rowNum = -1;
-        cc.log("MultiList fill len:"+len+" isAll:"+isAll+" dir:"+this._direction);
         if(isAll){
             for (i = 0; i < len; i++)
             {
@@ -264,6 +263,37 @@ var MultiList = cc.Layer.extend({
                         item.setPositionX(this.convertX((Math.floor(item.getItemId() / this.row) * this.getItemSize())
                             - this._currentPoint - this.getItemSize()));
                     }
+                }
+            }
+        }
+
+        var len1 = this.mList.length;
+        for(var i = 0;i<len1;++i)
+        {
+            var len2 = this.mList[i].length;
+            for(var j=0; j<len2; ++j)
+            {
+                var item = this.mList[i][j];
+                var id = item.getItemId();
+                if(this._bMultiSelect)
+                {
+                    var idx = this._multiSelectIds.indexOf(id);
+                    if(idx>-1 && !item.isSelected())
+                        item.setSelected(true);
+                    else if(idx<=-1 && item.isSelected())
+                        item.setSelected(false);
+                }
+                else
+                {
+                    if(this._curSelectItemId<0)
+                    {
+                        if(item.isSelected())
+                            item.setSelected(false);
+                    }
+                    else if(id == this._curSelectItemId && !item.isSelected())
+                        item.setSelected(true);
+                    else if(id != this._curSelectItemId && item.isSelected())
+                        item.setSelected(false);
                 }
             }
         }
@@ -424,6 +454,22 @@ var MultiList = cc.Layer.extend({
         }
         return null;
     },
+    searchItemByItemId:function(id){
+        if(id<0)
+            return null;
+        var len1 = this.mList.length;
+        for(var i = 0;i<len1;++i)
+        {
+            var len2 = this.mList[i].length;
+            for(var j=0; j<len2; ++j)
+            {
+                var item = this.mList[i][j];
+                if(id == item.getItemId())
+                    return item;
+            }
+        }
+        return null;
+    },
     /**
      * 执行所有ITEM的update方法
      */
@@ -513,25 +559,30 @@ var MultiList = cc.Layer.extend({
                             && clickPt.x>=(item.getPositionX()-item.getAnchorPointInPoints().x)
                             && clickPt.x<(item.getPositionX()-item.getAnchorPointInPoints().x+item.getContentSize().width))
                         {
+                            var id = item.getItemId();
                             if(this._bMultiSelect)
                             {
-                                if(item.isSelected())
-                                    item.onUnselected();
+                                var idx = this._multiSelectIds.indexOf(id);
+                                if(idx>-1)
+                                    this._multiSelectIds.splice(idx,1);
                                 else
-                                    item.onSelected();
+                                    this._multiSelectIds.push(id);
+
+                                item.setSelected(!item.isSelected());
                             }
                             else
                             {
-                                cc.log("singleSelect");
-                                if(item != this._curSelectItem)
+                                if(id != this._curSelectItemId)
                                 {
-                                    if(this._curSelectItem)
-                                        this._curSelectItem.onUnselected();
-                                    this._curSelectItem = item;
-                                    item.onSelected();
+                                    if(this._curSelectItemId>=0)
+                                    {
+                                        var old = this.searchItemByItemId(this._curSelectItemId);
+                                        if(old)
+                                            old.setSelected(false);
+                                    }
+                                    this._curSelectItemId = id;
+                                    item.setSelected(true);
                                 }
-                                else
-                                    this._curSelectItem.onUnselected();
                             }
 
                         }

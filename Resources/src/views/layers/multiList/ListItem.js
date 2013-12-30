@@ -40,11 +40,19 @@ var ListItem = cc.Node.extend({
     isSelected:function(){
         return this._isSelected;
     },
+    setSelected:function(b){
+        if(b != this._isSelected)
+        {
+            this._isSelected = b;
+            if(this._isSelected)
+                this.onSelected();
+            else
+                this.onUnselected();
+        }
+    },
     onSelected:function(){
-        this._isSelected = true;
     },
     onUnselected:function(){
-        this._isSelected = false;
     }
 });
 

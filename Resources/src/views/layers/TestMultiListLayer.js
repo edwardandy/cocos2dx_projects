@@ -9,16 +9,7 @@ var TestMultiListLayer = cc.Layer.extend({
 
         var director = cc.Director.getInstance();
         var winSize = director.getWinSize();
-
         director.setDepthTest(true);
-
-        //var clipping = cc.ClippingNode.create();
-        //var mask = cc.Sprite.create();
-        //mask.setContentSize(cc.size(100,100));
-        //clipping.setStencil(mask);
-
-        //var content = cc.LayerColor.create(cc.c4b(255,0,0,255),200,200);
-        //clipping.addChild(content);
 
         var bmLabel = cc.LabelBMFont.create("MultiList","res/fonts/arial16.fnt");
         bmLabel.setPosition(winSize.width/2,winSize.height - bmLabel.getContentSize().height/2-100);
@@ -31,14 +22,7 @@ var TestMultiListLayer = cc.Layer.extend({
         var list1 = new MultiList(TestListItem,TestListSkin,5,6,0,0,Direction.VERTICAL);
         list1.setPosition(50,350);
         this.addChild(list1);
-
-        //var item = new TestListItem(new TestListSkin);
-        //item.setPosition(100,100);
-        //this.addChild(item);
-
-        //var skin = new TestListSkin;
-        //skin.setPosition(200,100);
-        //this.addChild(skin);
+        list1.setMultiSeleted(true);
 
         this._data = [];
         for(var i = 0;i<50;++i)
@@ -69,29 +53,28 @@ var TestListItem = ListItem.extend({
             }
         }
 
-        cc.log("TestListItem x:"+this.getPositionX()+" y:"+this.getPositionY());
+        if(this._isSelected)
+            this.onSelected();
+        else
+            this.onUnselected();
     },
     onSelected:function(){
         this._super();
-        var skin = this.getChildByTag(1);
-        if(skin)
+        var sp = this.getChildByTag(2);
+        if(!sp)
         {
-            if(null != skin.getChildByTag(1))
-            {
-                skin.getChildByTag(1).setVisible(true);
-            }
+            sp = cc.Sprite.create("res/Images/close.png",cc.rect(0,0,32,32));
+            sp.setAnchorPoint(cc.p(0,0));
+            this.addChild(sp,1,2);
         }
+
+        sp.setVisible(true);
     },
     onUnselected:function(){
         this._super();
-        var skin = this.getChildByTag(1);
-        if(skin)
-        {
-            if(null != skin.getChildByTag(1))
-            {
-                skin.getChildByTag(1).setVisible(false);
-            }
-        }
+        var sp = this.getChildByTag(2);
+        if(sp)
+            sp.setVisible(false);
     }
 });
 
