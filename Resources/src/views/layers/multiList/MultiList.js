@@ -23,6 +23,7 @@ var MultiList = cc.Layer.extend({
     _curSelectItemId:-1,
     _bMultiSelect:false,
     _multiSelectIds:[],
+    _actionDelegate:null,
     dispose:function(){
         this.mContainer.release();
 
@@ -38,6 +39,7 @@ var MultiList = cc.Layer.extend({
 
         this._mask.release();
         this.itemInstance.release();
+        this._actionDelegate.release();
     },
     ctor:function(clazz,skinClazz, row, col, rowSpace,colSpace,direction){
         this._super();
@@ -50,6 +52,9 @@ var MultiList = cc.Layer.extend({
         this._direction		= direction? direction : Direction.HORIZONTAL;
         this.itemInstance	= new clazz();
         this.itemInstance.retain();
+
+        this._actionDelegate = new ActionTweenDelegate(this);
+        this._actionDelegate.retain();
 
         if(skinClazz != null)
         {
@@ -347,12 +352,12 @@ var MultiList = cc.Layer.extend({
         }
         this._index = value;
         this.stopAllActions();
-        this.setCurrentPoint(this._index * this.getItemSize());
+        //this.setCurrentPoint(this._index * this.getItemSize());
         //需要jsbinding实现
-        /*var acTween = cc.ActionTween.create(0.5,'currentPoint'
+        var acTween = cc.ActionTween.create(0.5,'currentPoint'
             ,this.getCurrentPoint(),this._index * this.getItemSize());
         var acEase = cc.EaseExponentialOut.create(acTween);
-        this.runAction(acEase);*/
+        //this._actionDelegate.runAction(acEase);
     },
     updateTweenAction:function(value, key){
         switch(key)
@@ -598,7 +603,7 @@ var MultiList = cc.Layer.extend({
         else
             delta = -deltaPt.x;
 
-        var target = this._currentPoint + delta*50;
+        var target = this._currentPoint + delta*50+10;
         if(target >= this.getTotalIndex() * this.getItemSize())
         {
             target 	= this.getTotalIndex() * this.getItemSize();
@@ -607,10 +612,10 @@ var MultiList = cc.Layer.extend({
         }
 
         //需要jsbinding实现
-        /*var acTween = cc.ActionTween.create(0.5,'currentPoint'
+        var acTween = cc.ActionTween.create(0.5,'currentPoint'
             ,this.getCurrentPoint(),target);
-        var acEase = cc.EaseExponentialIn.create(acTween);
-        this.runAction(acEase);*/
+        //var acEase = cc.EaseExponentialIn.create(acTween);
+        this._actionDelegate.runAction(acTween);
     },
     setMultiSeleted:function(bMulti){
         this._bMultiSelect = bMulti;

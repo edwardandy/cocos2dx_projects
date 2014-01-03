@@ -98,6 +98,10 @@
 		15A3D5521682F1A5002FB0C5 /* CCTableViewCell.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 15A3D50E1682F1A4002FB0C5 /* CCTableViewCell.cpp */; };
 		15A3D5541682F1A5002FB0C5 /* CCPhysicsDebugNode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 15A3D5161682F1A4002FB0C5 /* CCPhysicsDebugNode.cpp */; };
 		15A3D5551682F1A5002FB0C5 /* CCPhysicsSprite.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 15A3D5181682F1A4002FB0C5 /* CCPhysicsSprite.cpp */; };
+		1980D1AB5D2775CE73D274A2 /* jsb_customBindings.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1980D5A7458ACCD15114DDCB /* jsb_customBindings.cpp */; };
+		1980D39A70291E54C90F7176 /* jsb_customBindings.js in Sources */ = {isa = PBXBuildFile; fileRef = 1980DA013B328C7905B4CF89 /* jsb_customBindings.js */; };
+		1980D74D7518CD7A1A694C8F /* ActionTweenJSDelegate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1980D3836B6ABF03E108577B /* ActionTweenJSDelegate.cpp */; };
+		1980DC696DDACC43BAB09CE8 /* testjs.js in Sources */ = {isa = PBXBuildFile; fileRef = 1980D347E8DBFBF44D9D3E1D /* testjs.js */; };
 		1A2757BE1697FBE500504026 /* jsb_chipmunk.js in Resources */ = {isa = PBXBuildFile; fileRef = 1A2757B01697FAAD00504026 /* jsb_chipmunk.js */; };
 		1A2757BF1697FBE500504026 /* jsb_cocos2d.js in Resources */ = {isa = PBXBuildFile; fileRef = 1A2757B11697FAAD00504026 /* jsb_cocos2d.js */; };
 		1A2757C01697FBE500504026 /* jsb_cocosbuilder.js in Resources */ = {isa = PBXBuildFile; fileRef = 1A2757B21697FAAD00504026 /* jsb_cocosbuilder.js */; };
@@ -456,6 +460,12 @@
 		15A3D5171682F1A4002FB0C5 /* CCPhysicsDebugNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CCPhysicsDebugNode.h; sourceTree = "<group>"; };
 		15A3D5181682F1A4002FB0C5 /* CCPhysicsSprite.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CCPhysicsSprite.cpp; sourceTree = "<group>"; };
 		15A3D5191682F1A4002FB0C5 /* CCPhysicsSprite.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CCPhysicsSprite.h; sourceTree = "<group>"; };
+		1980D347E8DBFBF44D9D3E1D /* testjs.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = testjs.js; sourceTree = "<group>"; };
+		1980D3836B6ABF03E108577B /* ActionTweenJSDelegate.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ActionTweenJSDelegate.cpp; sourceTree = "<group>"; };
+		1980D39F64662DD4F8F3CE89 /* ActionTweenJSDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ActionTweenJSDelegate.h; sourceTree = "<group>"; };
+		1980D5A7458ACCD15114DDCB /* jsb_customBindings.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = jsb_customBindings.cpp; sourceTree = "<group>"; };
+		1980DA013B328C7905B4CF89 /* jsb_customBindings.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = jsb_customBindings.js; sourceTree = "<group>"; };
+		1980DAB88AB907F8BCD38C95 /* jsb_customBindings.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = jsb_customBindings.hpp; sourceTree = "<group>"; };
 		1A2757B01697FAAD00504026 /* jsb_chipmunk.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = jsb_chipmunk.js; sourceTree = "<group>"; };
 		1A2757B11697FAAD00504026 /* jsb_cocos2d.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = jsb_cocos2d.js; sourceTree = "<group>"; };
 		1A2757B21697FAAD00504026 /* jsb_cocosbuilder.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = jsb_cocosbuilder.js; sourceTree = "<group>"; };
@@ -1152,6 +1162,26 @@
 			path = physics_nodes;
 			sourceTree = "<group>";
 		};
+		1980D0120FCE500E6058102A /* bindings */ = {
+			isa = PBXGroup;
+			children = (
+				1980DAB88AB907F8BCD38C95 /* jsb_customBindings.hpp */,
+				1980D5A7458ACCD15114DDCB /* jsb_customBindings.cpp */,
+				1980DA013B328C7905B4CF89 /* jsb_customBindings.js */,
+			);
+			path = bindings;
+			sourceTree = "<group>";
+		};
+		1980D822816B904FA6C9B2C2 /* customBindings */ = {
+			isa = PBXGroup;
+			children = (
+				1980D3836B6ABF03E108577B /* ActionTweenJSDelegate.cpp */,
+				1980D39F64662DD4F8F3CE89 /* ActionTweenJSDelegate.h */,
+				1980D0120FCE500E6058102A /* bindings */,
+			);
+			path = customBindings;
+			sourceTree = "<group>";
+		};
 		1A40E76F1727C102006D4861 /* spine */ = {
 			isa = PBXGroup;
 			children = (
@@ -1614,6 +1644,8 @@
 			children = (
 				D4545215156E28EF00887EB5 /* AppDelegate.cpp */,
 				D4545216156E28EF00887EB5 /* AppDelegate.h */,
+				1980D822816B904FA6C9B2C2 /* customBindings */,
+				1980D347E8DBFBF44D9D3E1D /* testjs.js */,
 			);
 			name = Classes;
 			path = ../Classes;
@@ -1938,6 +1970,10 @@
 				1A5E74D117F0874400B9ACAE /* json_reader.cpp in Sources */,
 				1A5E74D217F0874400B9ACAE /* json_value.cpp in Sources */,
 				1A5E74D417F0874400B9ACAE /* json_writer.cpp in Sources */,
+				1980D74D7518CD7A1A694C8F /* ActionTweenJSDelegate.cpp in Sources */,
+				1980D1AB5D2775CE73D274A2 /* jsb_customBindings.cpp in Sources */,
+				1980D39A70291E54C90F7176 /* jsb_customBindings.js in Sources */,
+				1980DC696DDACC43BAB09CE8 /* testjs.js in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

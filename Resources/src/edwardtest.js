@@ -6,6 +6,7 @@
 
 */
 require("jsb.js");
+require("src/bindings/jsb_customBindings.js")
 require("src/resource.js");
 require("src/myApp.js");
 require("src/views/layers/baseTestLayer.js");
@@ -26,7 +27,7 @@ require("src/views/layers/popup/PopUpManager.js");
 require("src/views/layers/popup/PopUpVos.js");
 require("src/views/layers/TestPopupManager.js");
 
-var myScene = cc.Scene.create();//new MyScene();
+var myScene = new MyScene();//new cc.Scene;//cc.Scene.create();//
 var layer = new TestMultiListLayer; //new TestPopupManager;//new TestTabListLayer; //new TestLayer2;
 myScene.addChild(layer);
 layer.init();

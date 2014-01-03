@@ -87,13 +87,13 @@ var MyLayer = cc.Layer.extend({
 var MyScene = cc.Scene.extend({
     ctor:function() {
         this._super();
-        cc.associateWithNative( this, cc.Scene );
+        //cc.associateWithNative( this, cc.Scene );
     },
 
     onEnter:function () {
         this._super();
-        var layer = new MyLayer();
-        this.addChild(layer);
-        layer.init();
+        //var layer = new MyLayer();
+        //this.addChild(layer);
+        //layer.init();
     }
 });
