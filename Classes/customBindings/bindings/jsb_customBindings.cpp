@@ -2,8 +2,8 @@
 #include "../ActionTweenJSDelegate.h"
 #include "jsb_cocos2dx_auto.hpp"
 
-JSClass  *jsb_ActionTweenJSDelegate_class;
-JSObject *jsb_ActionTweenJSDelegate_prototype;
+JSClass  *jsb_ActionTweenJSDelegate_class1;
+JSObject *jsb_ActionTweenJSDelegate_prototype1;
 
 void register_all_custombindings(JSContext* cx, JSObject* obj){
     // first, try to get the ns
@@ -21,8 +21,8 @@ void register_all_custombindings(JSContext* cx, JSObject* obj){
 
     js_register_custombindings_ActionTweenJSDelegate(cx, obj);
 
-    JS_DefineFunction(cx, jsb_ActionTweenJSDelegate_prototype, "retain", js_custombindings_retain, 0, JSPROP_READONLY | JSPROP_PERMANENT);
-    JS_DefineFunction(cx, jsb_ActionTweenJSDelegate_prototype, "release", js_custombindings_release, 0, JSPROP_READONLY | JSPROP_PERMANENT);
+    JS_DefineFunction(cx, jsb_ActionTweenJSDelegate_prototype1, "retain", js_custombindings_retain, 0, JSPROP_READONLY | JSPROP_PERMANENT);
+    JS_DefineFunction(cx, jsb_ActionTweenJSDelegate_prototype1, "release", js_custombindings_release, 0, JSPROP_READONLY | JSPROP_PERMANENT);
 }
 
 JSBool js_custombindings_retain(JSContext *cx, uint32_t argc, jsval *vp)
@@ -68,17 +68,17 @@ JSBool js_custombindings_release(JSContext *cx, uint32_t argc, jsval *vp)
 
 
 void js_register_custombindings_ActionTweenJSDelegate(JSContext *cx, JSObject *global) {
-    jsb_ActionTweenJSDelegate_class = (JSClass *)calloc(1, sizeof(JSClass));
-    jsb_ActionTweenJSDelegate_class->name = "ActionTweenJSDelegate";
-    jsb_ActionTweenJSDelegate_class->addProperty = JS_PropertyStub;
-    jsb_ActionTweenJSDelegate_class->delProperty = JS_PropertyStub;
-    jsb_ActionTweenJSDelegate_class->getProperty = JS_PropertyStub;
-    jsb_ActionTweenJSDelegate_class->setProperty = JS_StrictPropertyStub;
-    jsb_ActionTweenJSDelegate_class->enumerate = JS_EnumerateStub;
-    jsb_ActionTweenJSDelegate_class->resolve = JS_ResolveStub;
-    jsb_ActionTweenJSDelegate_class->convert = JS_ConvertStub;
-    jsb_ActionTweenJSDelegate_class->finalize = js_custombindings_ActionTweenJSDelegate_finalize;
-    jsb_ActionTweenJSDelegate_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+    jsb_ActionTweenJSDelegate_class1 = (JSClass *)calloc(1, sizeof(JSClass));
+    jsb_ActionTweenJSDelegate_class1->name = "ActionTweenJSDelegate";
+    jsb_ActionTweenJSDelegate_class1->addProperty = JS_PropertyStub;
+    jsb_ActionTweenJSDelegate_class1->delProperty = JS_PropertyStub;
+    jsb_ActionTweenJSDelegate_class1->getProperty = JS_PropertyStub;
+    jsb_ActionTweenJSDelegate_class1->setProperty = JS_StrictPropertyStub;
+    jsb_ActionTweenJSDelegate_class1->enumerate = JS_EnumerateStub;
+    jsb_ActionTweenJSDelegate_class1->resolve = JS_ResolveStub;
+    jsb_ActionTweenJSDelegate_class1->convert = JS_ConvertStub;
+    jsb_ActionTweenJSDelegate_class1->finalize = js_custombindings_ActionTweenJSDelegate_finalize;
+    jsb_ActionTweenJSDelegate_class1->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
 
     static JSPropertySpec properties[] = {
             {0, 0, 0, JSOP_NULLWRAPPER, JSOP_NULLWRAPPER}
@@ -93,10 +93,10 @@ void js_register_custombindings_ActionTweenJSDelegate(JSContext *cx, JSObject *g
             JS_FS_END
     };
 
-    jsb_ActionTweenJSDelegate_prototype = JS_InitClass(
+    jsb_ActionTweenJSDelegate_prototype1 = JS_InitClass(
             cx, global,
             jsb_CCNode_prototype,
-            jsb_ActionTweenJSDelegate_class,
+            jsb_ActionTweenJSDelegate_class1,
             js_custombindings_ActionTweenJSDelegate_constructor, 0, // constructor
             properties,
             funcs,
@@ -115,8 +115,8 @@ void js_register_custombindings_ActionTweenJSDelegate(JSContext *cx, JSObject *g
     if (!p) {
         p = (js_type_class_t *)malloc(sizeof(js_type_class_t));
         p->type = typeId;
-        p->jsclass = jsb_ActionTweenJSDelegate_class;
-        p->proto = jsb_ActionTweenJSDelegate_prototype;
+        p->jsclass = jsb_ActionTweenJSDelegate_class1;
+        p->proto = jsb_ActionTweenJSDelegate_prototype1;
         p->parentProto = jsb_CCNode_prototype;
         HASH_ADD_INT(_js_global_type_ht, type, p);
     }

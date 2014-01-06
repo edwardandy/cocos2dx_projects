@@ -7,6 +7,7 @@
 */
 require("jsb.js");
 require("src/bindings/jsb_customBindings.js")
+require("src/bindings/jsb_custombinding_auto_api.js")
 require("src/resource.js");
 require("src/myApp.js");
 require("src/views/layers/baseTestLayer.js");

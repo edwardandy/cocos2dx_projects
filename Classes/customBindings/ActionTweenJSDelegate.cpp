@@ -8,13 +8,12 @@
 
 void CustomBindings::ActionTweenJSDelegate::updateTweenAction(float value, const char *key) {
     CCLog("ActionTweenJSDelegate updateTweenAction");
+
     js_proxy_t* p = jsb_get_native_proxy(this);
     jsval retval;
     JSContext* jc = ScriptingCore::getInstance()->getGlobalContext();
-    CCString* strValue = CCStringMake("");
-    strValue->initWithFormat("%f.2",value);
     jsval v[] = {
-            v[0] = c_string_to_jsval(jc, strValue->getCString(), strValue->length()),
+            v[0] = DOUBLE_TO_JSVAL(value),
             v[1] = c_string_to_jsval(jc, key, strlen(key))
     };
     ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(p->obj), "updateTweenAction", 2, v, &retval);

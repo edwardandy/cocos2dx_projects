@@ -16,7 +16,8 @@
 #include "XMLHTTPRequest.h"
 #include "jsb_websocket.h"
 
-#include "customBindings/bindings/jsb_customBindings.hpp"
+//#include "customBindings/bindings/jsb_customBindings.hpp"
+#include "customBindings/bindings/jsb_custombinding_auto.hpp"
 USING_NS_CC;
 using namespace CocosDenshion;
 
@@ -55,7 +56,8 @@ bool AppDelegate::applicationDidFinishLaunching()
     sc->addRegisterCallback(MinXmlHttpRequest::_js_register);
     sc->addRegisterCallback(register_jsb_websocket);
     //customBindings
-    sc->addRegisterCallback(register_all_custombindings);
+    //sc->addRegisterCallback(register_all_custombindings);
+    sc->addRegisterCallback(register_all_custombinding);
 
     sc->start();
     
