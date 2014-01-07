@@ -17,7 +17,7 @@
 #include "jsb_websocket.h"
 
 //#include "customBindings/bindings/jsb_customBindings.hpp"
-#include "customBindings/bindings/jsb_custombinding_auto.hpp"
+#include "jsb_custombinding_auto.hpp"
 USING_NS_CC;
 using namespace CocosDenshion;
 

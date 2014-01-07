@@ -14,9 +14,9 @@ namespace CustomBindings
     class ActionTweenJSDelegate :public cocos2d::CCNode, public cocos2d::CCActionTweenDelegate
     {
         virtual ~ActionTweenJSDelegate(){};
-        virtual void updateTweenAction(float value,const char* key);
     public:
         static ActionTweenJSDelegate *create(void);
+        virtual void updateTweenAction(float value,const char* key);
     };
 };
 

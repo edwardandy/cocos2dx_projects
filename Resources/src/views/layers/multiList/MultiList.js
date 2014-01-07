@@ -614,8 +614,9 @@ var MultiList = cc.Layer.extend({
         //需要jsbinding实现
         var acTween = cc.ActionTween.create(0.5,'currentPoint'
             ,this.getCurrentPoint(),target);
+        var acMove = cc.MoveBy.create(2,cc.p(2,2));
         //var acEase = cc.EaseExponentialIn.create(acTween);
-        this._actionDelegate.runAction(acTween);
+        this._actionDelegate.runAction(acTween/*acMove*/);
     },
     setMultiSeleted:function(bMulti){
         this._bMultiSelect = bMulti;

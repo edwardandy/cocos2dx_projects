@@ -6,7 +6,8 @@ template<class T>
 static JSBool dummy_constructor(JSContext *cx, uint32_t argc, jsval *vp) {
 	TypeTest<T> t;
 	T* cobj = new T();
-	cocos2d::CCObject *_ccobj = dynamic_cast<cocos2d::CCObject *>(cobj);
+	//cocos2d::CCObject *_ccobj = dynamic_cast<cocos2d::CCObject *>(cobj);
+    cocos2d::CCObject *_ccobj = (cocos2d::CCObject *)cobj;
 	if (_ccobj) {
 		_ccobj->autorelease();
 	}
@@ -62,6 +63,9 @@ static JSBool js_custombinding_ActionTweenJSDelegate_ctor(JSContext *cx, uint32_
 {
 	JSObject *obj = JS_THIS_OBJECT(cx, vp);
     CustomBindings::ActionTweenJSDelegate *nobj = new CustomBindings::ActionTweenJSDelegate();
+    cocos2d::CCNode* nnobj = (cocos2d::CCNode*)nobj;
+    nobj->retainCount();
+    nnobj->retainCount();
     js_proxy_t* p = jsb_new_proxy(nobj, obj);
     nobj->autorelease();
     JS_AddNamedObjectRoot(cx, &p->obj, "CustomBindings::ActionTweenJSDelegate");
@@ -84,7 +88,10 @@ void js_register_custombinding_ActionTweenJSDelegate(JSContext *cx, JSObject *gl
 
 	JSPropertySpec *properties = NULL;
 
-	JSFunctionSpec *funcs = NULL;
+	JSFunctionSpec funcs[] = {
+        JS_FN("ctor", js_custombinding_ActionTweenJSDelegate_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
 
 	static JSFunctionSpec st_funcs[] = {
 		JS_FN("create", js_custombinding_ActionTweenJSDelegate_create, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
