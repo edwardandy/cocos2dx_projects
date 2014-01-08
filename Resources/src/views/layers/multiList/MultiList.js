@@ -351,7 +351,7 @@ var MultiList = cc.Layer.extend({
             }
         }
         this._index = value;
-        this.stopAllActions();
+        //this.stopAllActions();
         //this.setCurrentPoint(this._index * this.getItemSize());
         //需要jsbinding实现
         var acTween = cc.ActionTween.create(0.5,'currentPoint'
@@ -508,14 +508,16 @@ var MultiList = cc.Layer.extend({
             }
         }
     },
+    _lastDelta:0,
     onTouchBegan:function(touch,evt){
+        this._lastDelta = 0;
         var loc = touch.getLocation();
         loc = this.getParent().convertToNodeSpace(loc);
         if(!cc.rectContainsPoint(this.getBoundingBox(),loc))
             return false;
         this._bClicked = true;
         this._startPt = loc;
-        this.stopAllActions();
+        //this.stopAllActions();
         return true;
     },
     onTouchMoved:function(touch,evt){
@@ -536,7 +538,7 @@ var MultiList = cc.Layer.extend({
         else
             delta = -deltaPt.x;
         this.setCurrentPoint(this._currentPoint + delta);
-
+        this._lastDelta = delta;
     },
     onTouchEnded:function(touch,evt){
         if(this._bClicked)
@@ -603,20 +605,26 @@ var MultiList = cc.Layer.extend({
         else
             delta = -deltaPt.x;
 
-        var target = this._currentPoint + delta*50+10;
+        delta = this._lastDelta;
+        var scale = 10;
+        var target = this._currentPoint + delta*scale;
         if(target >= this.getTotalIndex() * this.getItemSize())
         {
             target 	= this.getTotalIndex() * this.getItemSize();
         }else if(target<=0){
             target = 0;
         }
+        cc.log("MultiList touch end delta:"+delta+" current target:"+this._currentPoint+" target:"+target);
 
         //需要jsbinding实现
-        var acTween = cc.ActionTween.create(0.5,'currentPoint'
+        var interval = cc.Director.getInstance().getAnimationInterval();
+        var time = (target - this._currentPoint)/(delta/interval);
+
+        var acTween = cc.ActionTween.create(time,'currentPoint'
             ,this.getCurrentPoint(),target);
         var acMove = cc.MoveBy.create(2,cc.p(2,2));
-        //var acEase = cc.EaseExponentialIn.create(acTween);
-        this._actionDelegate.runAction(acTween/*acMove*/);
+        var acEase = cc.EaseOut.create(acTween,3);//cc.EaseExponentialOut.create(acTween);
+        this._actionDelegate.runAction(acEase/*acTween*//*acMove*/);
     },
     setMultiSeleted:function(bMulti){
         this._bMultiSelect = bMulti;

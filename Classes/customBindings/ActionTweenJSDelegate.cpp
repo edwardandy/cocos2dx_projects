@@ -6,8 +6,11 @@
 #include "ActionTweenJSDelegate.h"
 #include "cocos2d_specifics.hpp"
 
+CustomBindings::ActionTweenJSDelegate::ActionTweenJSDelegate(){
+    m_bRunning = true;
+}
 void CustomBindings::ActionTweenJSDelegate::updateTweenAction(float value, const char *key) {
-    CCLog("ActionTweenJSDelegate updateTweenAction");
+    //CCLog("ActionTweenJSDelegate updateTweenAction");
 
     js_proxy_t* p = jsb_get_native_proxy(this);
     jsval retval;

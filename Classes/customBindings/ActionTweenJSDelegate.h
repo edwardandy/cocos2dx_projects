@@ -15,6 +15,7 @@ namespace CustomBindings
     {
         virtual ~ActionTweenJSDelegate(){};
     public:
+        ActionTweenJSDelegate();
         static ActionTweenJSDelegate *create(void);
         virtual void updateTweenAction(float value,const char* key);
     };
